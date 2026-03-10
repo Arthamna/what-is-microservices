@@ -1,8 +1,12 @@
 package data
 
-import "time"
+import (
+	"encoding/json"
+	"io"
+	"time"
+)
 
-type Products struct {
+type Product struct {
 	ID          int     `json:"id"`
 	Name        string  `json:"name"`
 	Description string  `json:"description"`
@@ -13,12 +17,40 @@ type Products struct {
 	DeletedOn   string  `json:"deleted_on"`
 }
 
+type Products []*Product 
 
-func GetProduct() []*Products{
+func GetProduct() Products{
 	return productList
 }
 
-var productList = []*Products{
+// ToJSON serializes the contents of the collection to JSON
+// NewEncoder provides better performance than json.Unmarshal as it does not
+// have to buffer the output into an in memory slice of bytes
+// this reduces allocations and the overheads of the service
+//
+// https://golang.org/pkg/encoding/json/#NewEncoder
+
+func (p *Products) ToJson(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(p)
+}
+
+func (p *Product) FromJson(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(p)
+}
+
+func getNextID() int {
+	lp := productList[len(productList)-1]
+	return lp.ID + 1
+}
+
+func AddProduct(p Product) {
+	p.ID = getNextID()
+	productList = append(productList, &p)
+}
+
+var productList = Products{
 	{
 		ID:          1,
 		Name:        "Latte",
