@@ -1,3 +1,5 @@
+// Package classification of Product API
+
 package handlers
 
 import (
@@ -35,13 +37,6 @@ func (p *Products) GetAllProduct(w http.ResponseWriter, r *http.Request) {
 
 func (p *Products) AddProduct(w http.ResponseWriter, r *http.Request) {
 
-	// lp := &data.Product{}
-
-	// err := lp.FromJson(r.Body)
-	// if err != nil{
-	// 	http.Error(w, "Unable to marshal json", http.StatusInternalServerError)
-	// }
-
 	// create context copy with passed data struct
 	prod := r.Context().Value(KeyProduct{}).(data.Product)
 
@@ -55,14 +50,6 @@ func (p *Products) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unable to convert id", http.StatusBadRequest)
 		return
 	} 
-
-	// product  := &data.Product{}
-	// // decode from r.body to struct (data)
-	// err = product.FromJson(r.Body)
-	// if err != nil {
-	// 	http.Error(w, "Unable to marshal json", http.StatusInternalServerError)
-	// 	return
-	// }
 
 	product := r.Context().Value(KeyProduct{}).(data.Product)
 
