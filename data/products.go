@@ -47,9 +47,9 @@ func getNextID() int {
 	return lp.ID + 1
 }
 
-func AddProduct(p Product) {
+func AddProduct(p *Product) {
 	p.ID = getNextID()
-	productList = append(productList, &p)
+	productList = append(productList, p)
 }
 
 // update

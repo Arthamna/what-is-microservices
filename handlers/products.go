@@ -2,6 +2,7 @@ package handlers
 
 import (
 	// "encoding/json"
+	"context"
 	"log"
 	"net/http"
 	"strconv"
@@ -21,26 +22,6 @@ func NewProducts(l *log.Logger) *Products {
 	return &Products{l}
 }
 
-// // method
-// func (p *Products) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-// 	if r.Method == http.MethodGet {
-// 		p.GetAllProduct(w, r)
-// 	}
-
-// 	if r.Method == http.MethodPost {
-// 		p.AddProduct(w, r)
-// 	}
-
-// 	if r.Method == http.MethodPut {
-// 		// no need to matching regex because gorilla already support that
-// 		p.UpdateProduct(w, r)
-// 		return
-// 	}
-
-// 	// currently return error if not specified
-// 	w.WriteHeader(http.StatusMethodNotAllowed)
-// }
-
 func (p *Products) GetAllProduct(w http.ResponseWriter, r *http.Request) {
 	lp := data.GetAllProduct()
 
@@ -52,15 +33,18 @@ func (p *Products) GetAllProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Products) AddProduct(w http.ResponseWriter, r *http.Request) {
-	// take a template from slices (because we implement the method on slices)
-	lp := &data.Product{}
 
-	err := lp.FromJson(r.Body)
-	if err != nil{
-		http.Error(w, "Unable to marshal json", http.StatusInternalServerError)
-	}
+	// lp := &data.Product{}
 
-	data.AddProduct(*lp)
+	// err := lp.FromJson(r.Body)
+	// if err != nil{
+	// 	http.Error(w, "Unable to marshal json", http.StatusInternalServerError)
+	// }
+
+	// create context copy with passed data struct
+	prod := r.Context().Value(KeyProduct{}).(data.Product)
+
+	data.AddProduct(&prod)
 }
 
 func (p *Products) UpdateProduct(w http.ResponseWriter, r *http.Request) {
@@ -71,23 +55,39 @@ func (p *Products) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	} 
 
-	product  := &data.Product{}
-	// decode from r.body to struct (data)
-	err = product.FromJson(r.Body)
-	if err != nil {
-		http.Error(w, "Unable to marshal json", http.StatusInternalServerError)
-		return
-	}
+	// product  := &data.Product{}
+	// // decode from r.body to struct (data)
+	// err = product.FromJson(r.Body)
+	// if err != nil {
+	// 	http.Error(w, "Unable to marshal json", http.StatusInternalServerError)
+	// 	return
+	// }
 
-	// product := r.Context().Value(KeyProduct{}).(data.Product)
+	product := r.Context().Value(KeyProduct{}).(data.Product)
 
-	err = data.UpdateProduct(id, product)
+	err = data.UpdateProduct(id, &product)
 	if err != nil {
 		http.Error(w, "Unable to update product", http.StatusBadRequest)
 		return
 	}
 
-
-	
 }
 
+func (p *Products) MiddlewareDecode(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		product := &data.Product{}
+		err := product.FromJson(r.Body)
+		if err != nil {
+			http.Error(w, "Unable to marshal json", http.StatusInternalServerError)
+			return
+		}
+
+		//add product to ctx
+		ctx := context.WithValue(r.Context(), KeyProduct{}, *product)
+		r = r.WithContext(ctx)
+
+		// call next handler, which can be another middleware or final handler
+		next.ServeHTTP(w, r)
+	})
+
+}
