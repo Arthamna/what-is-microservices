@@ -3,6 +3,7 @@ package handlers
 import (
 	// "encoding/json"
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -73,12 +74,25 @@ func (p *Products) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (p *Products) MiddlewareDecode(next http.Handler) http.Handler {
+func (p *Products) MiddlewareProduct(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		product := &data.Product{}
 		err := product.FromJson(r.Body)
 		if err != nil {
-			http.Error(w, "Unable to marshal json", http.StatusInternalServerError)
+			p.l.Println("[ERROR] deserializing product", err)
+			http.Error(w, "Error reading product", http.StatusBadRequest)
+			return
+		}
+
+		// validation
+		err = product.Validate()
+		if err != nil {
+			p.l.Println("[ERROR] validating product", err)
+			http.Error(
+				w, 
+				fmt.Sprintf("Error validating product %s", err),
+				http.StatusBadRequest,
+			)
 			return
 		}
 

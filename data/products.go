@@ -4,15 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"regexp"
 	"time"
+
+	"github.com/go-playground/validator"
 )
 
 type Product struct {
 	ID          int     `json:"id"`
-	Name        string  `json:"name"`
+	Name        string  `json:"name" validate:"required"`
 	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	SKU         string  `json:"sku"`
+	Price       float64 `json:"price" validate:"gt=0"`
+	SKU         string  `json:"sku" validate:"required,sku"` //dont forget to add unique val. tag
 	CreatedOn   string  `json:"created_on"`
 	UpdatedOn   string  `json:"updated_on"`
 	DeletedOn   string  `json:"deleted_on"`
@@ -23,13 +26,6 @@ type Products []*Product
 func GetAllProduct() Products{
 	return productList
 }
-
-// ToJSON serializes the contents of the collection to JSON
-// NewEncoder provides better performance than json.Unmarshal as it does not
-// have to buffer the output into an in memory slice of bytes
-// this reduces allocations and the overheads of the service
-//
-// https://golang.org/pkg/encoding/json/#NewEncoder
 
 func (p *Products) ToJson(w io.Writer) error {
 	e := json.NewEncoder(w)
@@ -64,6 +60,25 @@ func UpdateProduct(id int, p *Product) error{
 	productList[pos] = p
 
 	return nil
+}
+
+// validate
+func (p *Product) Validate() error {
+	validate := validator.New()
+
+	// can also register new one :
+	validate.RegisterValidation("sku", validateSKU)
+	return validate.Struct(p)
+}
+
+func validateSKU(fl validator.FieldLevel) bool {
+	// format : abs-abdf-absdif
+	re := regexp.MustCompile(`[a-z]+-[a-z]+-[a-z]+`)
+	matches := re.FindAllString(fl.Field().String(), -1)
+	if len(matches) != 1 {
+		return false
+	}
+	return true
 }
 
 // reusable 

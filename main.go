@@ -27,11 +27,11 @@ func main(){
 	// yup, only for decode
 	putRouter := sm.Methods(http.MethodPut).Subrouter()
 	putRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProduct)
-	putRouter.Use(ph.MiddlewareDecode)
+	putRouter.Use(ph.MiddlewareProduct)
 	
 	addRouter := sm.Methods(http.MethodPost).Subrouter()
 	addRouter.HandleFunc("/add/", ph.AddProduct)
-	putRouter.Use(ph.MiddlewareDecode)
+	putRouter.Use(ph.MiddlewareProduct)
 	
 	s := http.Server{
 		Addr: ":8080",
