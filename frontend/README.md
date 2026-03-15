@@ -1,15 +1,5 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-
-# How to Run
-
-After copying project :
-```
-npm install -g npm-check-updates
-ncu -u
-npm install
-```
-
 ## Available Scripts
 
 In the project directory, you can run:
