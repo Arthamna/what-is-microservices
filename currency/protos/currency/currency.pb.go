@@ -165,9 +165,9 @@ func (Currencies) EnumDescriptor() ([]byte, []int) {
 type RateRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Base is the base currency code for the rate
-	Base string `protobuf:"bytes,1,opt,name=Base,proto3" json:"Base,omitempty"`
+	Base Currencies `protobuf:"varint,1,opt,name=Base,proto3,enum=currency.Currencies" json:"Base,omitempty"`
 	// Destination is the destination currency code for the rate
-	Destination   string `protobuf:"bytes,2,opt,name=Destination,proto3" json:"Destination,omitempty"`
+	Destination   Currencies `protobuf:"varint,2,opt,name=Destination,proto3,enum=currency.Currencies" json:"Destination,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -202,18 +202,18 @@ func (*RateRequest) Descriptor() ([]byte, []int) {
 	return file_currency_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *RateRequest) GetBase() string {
+func (x *RateRequest) GetBase() Currencies {
 	if x != nil {
 		return x.Base
 	}
-	return ""
+	return Currencies_EUR
 }
 
-func (x *RateRequest) GetDestination() string {
+func (x *RateRequest) GetDestination() Currencies {
 	if x != nil {
 		return x.Destination
 	}
-	return ""
+	return Currencies_EUR
 }
 
 // RateResponse is the response from a GetRate call, it contains
@@ -267,10 +267,10 @@ var File_currency_proto protoreflect.FileDescriptor
 
 const file_currency_proto_rawDesc = "" +
 	"\n" +
-	"\x0ecurrency.proto\x12\bcurrency\"C\n" +
-	"\vRateRequest\x12\x12\n" +
-	"\x04Base\x18\x01 \x01(\tR\x04Base\x12 \n" +
-	"\vDestination\x18\x02 \x01(\tR\vDestination\"\"\n" +
+	"\x0ecurrency.proto\x12\bcurrency\"o\n" +
+	"\vRateRequest\x12(\n" +
+	"\x04Base\x18\x01 \x01(\x0e2\x14.currency.CurrenciesR\x04Base\x126\n" +
+	"\vDestination\x18\x02 \x01(\x0e2\x14.currency.CurrenciesR\vDestination\"\"\n" +
 	"\fRateResponse\x12\x12\n" +
 	"\x04rate\x18\x01 \x01(\x02R\x04rate*\xb5\x02\n" +
 	"\n" +
@@ -310,7 +310,7 @@ const file_currency_proto_rawDesc = "" +
 	"\x03THB\x10\x1f\x12\a\n" +
 	"\x03ZAR\x10 2D\n" +
 	"\bCurrency\x128\n" +
-	"\aGetRate\x12\x15.currency.RateRequest\x1a\x16.currency.RateResponseB]Z[github.com/nicholasjackson/building-microservices-youtube/currency/protos/currency;currencyb\x06proto3"
+	"\aGetRate\x12\x15.currency.RateRequest\x1a\x16.currency.RateResponseB\vZ\t/currencyb\x06proto3"
 
 var (
 	file_currency_proto_rawDescOnce sync.Once
@@ -332,13 +332,15 @@ var file_currency_proto_goTypes = []any{
 	(*RateResponse)(nil), // 2: currency.RateResponse
 }
 var file_currency_proto_depIdxs = []int32{
-	1, // 0: currency.Currency.GetRate:input_type -> currency.RateRequest
-	2, // 1: currency.Currency.GetRate:output_type -> currency.RateResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0, // 0: currency.RateRequest.Base:type_name -> currency.Currencies
+	0, // 1: currency.RateRequest.Destination:type_name -> currency.Currencies
+	1, // 2: currency.Currency.GetRate:input_type -> currency.RateRequest
+	2, // 3: currency.Currency.GetRate:output_type -> currency.RateResponse
+	3, // [3:4] is the sub-list for method output_type
+	2, // [2:3] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_currency_proto_init() }

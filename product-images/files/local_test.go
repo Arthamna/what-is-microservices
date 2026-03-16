@@ -16,7 +16,7 @@ func setupLocal(t *testing.T) (*Local, string, func()) {
 		t.Fatal(err)
 	}
 
-	l, err := NewLocal(dir)
+	l, err := NewLocal(dir, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

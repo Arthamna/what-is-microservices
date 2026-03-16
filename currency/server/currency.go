@@ -9,12 +9,15 @@ import (
 
 // Currency is a gRPC server it implements the methods defined by the CurrencyServer interface
 type Currency struct {
+	protos.UnimplementedCurrencyServer
 	log hclog.Logger
 }
 
 // NewCurrency creates a new Currency server
 func NewCurrency(l hclog.Logger) *Currency {
-	return &Currency{l}
+	return &Currency{
+		log : l,
+	}
 }
 
 // GetRate implements the CurrencyServer GetRate method and returns the currency exchange rate

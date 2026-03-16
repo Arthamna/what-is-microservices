@@ -9,9 +9,12 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	protos "github.com/nicholasjackson/building-microservices-youtube/currency/protos/currency"
 	"github.com/nicholasjackson/building-microservices-youtube/product-api/data"
 	"github.com/nicholasjackson/building-microservices-youtube/product-api/handlers"
 	"github.com/nicholasjackson/env"
@@ -26,8 +29,18 @@ func main() {
 	l := log.New(os.Stdout, "products-api ", log.LstdFlags)
 	v := data.NewValidation()
 
+	// define grpc conn
+	conn, err := grpc.NewClient("localhost:9092", grpc.WithTransportCredentials(insecure.NewBundle().TransportCredentials()) )
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	// create grpc client
+	cc := protos.NewCurrencyClient(conn)
+
 	// create the handlers
-	ph := handlers.NewProducts(l, v)
+	ph := handlers.NewProducts(l, v, cc)
 
 	// create a new serve mux and register the handlers
 	sm := mux.NewRouter()

@@ -23,6 +23,7 @@ func main() {
 
 	// register the currency server
 	protos.RegisterCurrencyServer(gs, c)
+	// fmt.Printf("registered services: %+v\n", gs.GetServiceInfo())
 
 	// register the reflection service which allows clients to determine the methods
 	// for this gRPC service
