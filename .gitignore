@@ -1,3 +1,4 @@
 Microservices.md
 .vscode
 /go.mod
+/go.sum

@@ -3,6 +3,7 @@ package data
 import (
 	"encoding/xml"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -16,7 +17,23 @@ type ExchangeRates struct {
 
 func NewRates(l hclog.Logger) (*ExchangeRates, error) {
 	er := &ExchangeRates{log: l, rates: make(map[string]float64)}
-	return er, nil
+	err := er.getRates()
+	return er, err
+}
+
+func (e *ExchangeRates) GetRate(base string, dest string) (float64, error){
+	br, ok := e.rates[base]
+	if !ok {
+		return 0, fmt.Errorf("currency %s not found", base)
+	}
+
+	dr, ok := e.rates[dest]
+	if !ok {
+		return 0, fmt.Errorf("currency %s not found", dest)
+	}
+
+	// conv := destination / base
+	return dr / br, nil
 }
 
 // if succeed, return itself (sometimes i forgot)
@@ -43,7 +60,11 @@ func (e *ExchangeRates) getRates() error{
 		}
 		e.rates[c.Currency] = r
 	}
-
+	// case when converting to eur, given there isn't any in the xml
+	e.rates["EUR"] = 1	
+	
+	//
+	log.Printf("loaded %d exchange rates", len(e.rates))
 	return nil
 }
 

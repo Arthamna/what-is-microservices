@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/hashicorp/go-hclog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -26,7 +27,7 @@ func main() {
 
 	env.Parse()
 
-	l := log.New(os.Stdout, "products-api ", log.LstdFlags)
+	l := hclog.Default()
 	v := data.NewValidation()
 
 	// define grpc conn
@@ -39,15 +40,24 @@ func main() {
 	// create grpc client
 	cc := protos.NewCurrencyClient(conn)
 
+	// db init
+	db := data.NewProductsDB(cc, l)
+	// if err := db.Init(); err != nil {
+	// 	l.Fatal(err)
+	// }
+
 	// create the handlers
-	ph := handlers.NewProducts(l, v, cc)
+	ph := handlers.NewProducts(l, v, db)
 
 	// create a new serve mux and register the handlers
 	sm := mux.NewRouter()
 
 	// handlers for API
 	getR := sm.Methods(http.MethodGet).Subrouter()
+	getR.HandleFunc("/products", ph.ListAll).Queries("currency", "{[A-Z]{3}}")
 	getR.HandleFunc("/products", ph.ListAll)
+	
+	getR.HandleFunc("/products/{id:[0-9]+}", ph.ListSingle).Queries("currency", "{[A-Z]{3}}")
 	getR.HandleFunc("/products/{id:[0-9]+}", ph.ListSingle)
 
 	putR := sm.Methods(http.MethodPut).Subrouter()
@@ -75,7 +85,7 @@ func main() {
 	s := http.Server{
 		Addr:         *bindAddress,      // configure the bind address
 		Handler:      ch(sm),            // set the default handler
-		ErrorLog:     l,                 // set the logger for the server
+		ErrorLog:     l.StandardLogger(&hclog.StandardLoggerOptions{}),                 // set the logger for the server
 		ReadTimeout:  5 * time.Second,   // max time to read request from the client
 		WriteTimeout: 10 * time.Second,  // max time to write response to the client
 		IdleTimeout:  120 * time.Second, // max time for connections using TCP Keep-Alive
@@ -83,11 +93,11 @@ func main() {
 
 	// start the server
 	go func() {
-		l.Println("Starting server on port 9090")
+		l.Info("Starting server on port 9090")
 
 		err := s.ListenAndServe()
 		if err != nil {
-			l.Printf("Error starting server: %s\n", err)
+			l.Error("Error starting server: ", err)
 			os.Exit(1)
 		}
 	}()
