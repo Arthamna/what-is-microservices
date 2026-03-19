@@ -308,9 +308,10 @@ const file_currency_proto_rawDesc = "" +
 	"\x03PHP\x10\x1d\x12\a\n" +
 	"\x03SGD\x10\x1e\x12\a\n" +
 	"\x03THB\x10\x1f\x12\a\n" +
-	"\x03ZAR\x10 2D\n" +
+	"\x03ZAR\x10 2\x89\x01\n" +
 	"\bCurrency\x128\n" +
-	"\aGetRate\x12\x15.currency.RateRequest\x1a\x16.currency.RateResponseB\vZ\t/currencyb\x06proto3"
+	"\aGetRate\x12\x15.currency.RateRequest\x1a\x16.currency.RateResponse\x12C\n" +
+	"\x0eSubscribeRates\x12\x15.currency.RateRequest\x1a\x16.currency.RateResponse(\x010\x01B\vZ\t/currencyb\x06proto3"
 
 var (
 	file_currency_proto_rawDescOnce sync.Once
@@ -335,9 +336,11 @@ var file_currency_proto_depIdxs = []int32{
 	0, // 0: currency.RateRequest.Base:type_name -> currency.Currencies
 	0, // 1: currency.RateRequest.Destination:type_name -> currency.Currencies
 	1, // 2: currency.Currency.GetRate:input_type -> currency.RateRequest
-	2, // 3: currency.Currency.GetRate:output_type -> currency.RateResponse
-	3, // [3:4] is the sub-list for method output_type
-	2, // [2:3] is the sub-list for method input_type
+	1, // 3: currency.Currency.SubscribeRates:input_type -> currency.RateRequest
+	2, // 4: currency.Currency.GetRate:output_type -> currency.RateResponse
+	2, // 5: currency.Currency.SubscribeRates:output_type -> currency.RateResponse
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
 	2, // [2:2] is the sub-list for extension extendee
 	0, // [0:2] is the sub-list for field type_name
