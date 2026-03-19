@@ -22,7 +22,7 @@ func main() {
 		log.Error("Unable to create rates", "error", err)
 		os.Exit(1)
 	}
-	print(rates)
+	// print(rates)
 
 	// create a new gRPC server, use WithInsecure to allow http connections
 	gs := grpc.NewServer()
